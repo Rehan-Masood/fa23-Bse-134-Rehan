@@ -1,0 +1,1 @@
+-- No-op: payment method enum was removed from the current Prisma schema.

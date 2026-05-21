@@ -1,0 +1,1 @@
+-- No-op: delivery models and role values are included in the clean baseline migration.

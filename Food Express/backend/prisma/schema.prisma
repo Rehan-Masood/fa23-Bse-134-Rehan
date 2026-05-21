@@ -1,0 +1,343 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String
+  phone      String?
+  password   String
+  role       Role     @default(CUSTOMER)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  orderCount Int      @default(0)
+  totalSpent Float    @default(0)
+
+  // Relations
+  addresses     UserAddress[]
+  cartItems     CartItem[]
+  orders        Order[]
+  reviews       Review[]
+  bookings      TableBooking[]
+  notifications Notification[]
+  favorites     Favorite[]
+  deliveryPerson DeliveryPerson?
+
+  @@map("users")
+}
+
+model Restaurant {
+  id              String   @id @default(cuid())
+  name            String
+  description     String
+  imageUrl        String
+  rating          Float    @default(0)
+  deliveryTimeMin Int
+  deliveryTimeMax Int
+  minOrderAmount  Float    @default(0)
+  address         String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  categories Category[]
+  menuItems  MenuItem[]
+  orders     Order[]
+  bookings   TableBooking[]
+  reviews    Review[]
+  favorites  Favorite[]
+
+  @@map("restaurants")
+}
+
+model Category {
+  id           String  @id @default(cuid())
+  name         String
+  description  String?
+  restaurantId String
+
+  // Relations
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  menuItems  MenuItem[]
+
+  @@map("categories")
+}
+
+model MenuItem {
+  id            String   @id @default(cuid())
+  restaurantId  String
+  categoryId    String
+  name          String
+  price         Float
+  description   String
+  imageUrl      String
+  isAvailable   Boolean  @default(true)
+  averageRating Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  restaurant Restaurant  @relation(fields: [restaurantId], references: [id])
+  category   Category    @relation(fields: [categoryId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  reviews    Review[]
+  favorites  Favorite[]
+
+  @@map("menu_items")
+}
+
+model UserAddress {
+  id          String   @id @default(cuid())
+  userId      String
+  addressLine String
+  city        String
+  postalCode  String?
+  state       String?
+  country     String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id])
+  orders Order[]
+
+  @@map("user_addresses")
+}
+
+model CartItem {
+  id         String   @id @default(cuid())
+  userId     String
+  menuItemId String
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@unique([userId, menuItemId])
+  @@map("cart_items")
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  userId                String
+  restaurantId          String
+  orderNumber           String      @unique
+  status                OrderStatus @default(PENDING)
+  totalAmount           Float
+  deliveryFee           Float       @default(0)
+  discount              Float       @default(0)
+  deliveryAddress       String
+  notes                 String?
+  estimatedDeliveryTime DateTime
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  // Relations
+  user          User         @relation(fields: [userId], references: [id])
+  restaurant    Restaurant   @relation(fields: [restaurantId], references: [id])
+  address       UserAddress? @relation(fields: [userAddressId], references: [id])
+  orderItems    OrderItem[]
+  reviews       Review[]
+  deliveryAssignment DeliveryAssignment?
+  userAddressId String?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  orderId    String
+  menuItemId String
+  name       String
+  price      Float
+  quantity   Int
+
+  // Relations
+  order    Order    @relation(fields: [orderId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@map("order_items")
+}
+
+model TableBooking {
+  id           String        @id @default(cuid())
+  userId       String
+  restaurantId String
+  people       Int
+  date         DateTime
+  timeSlot     String
+  notes        String?
+  status       BookingStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@map("table_bookings")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String
+  restaurantId String?
+  menuItemId String?
+  orderId    String?
+  rating     Int // 1-5
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id])
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
+  menuItem   MenuItem?   @relation(fields: [menuItemId], references: [id])
+  order      Order?      @relation(fields: [orderId], references: [id])
+
+  @@map("reviews")
+}
+
+model Promotion {
+  id             String        @id @default(cuid())
+  code           String        @unique
+  type           PromotionType
+  value          Float
+  expiryDate     DateTime
+  minOrderAmount Float         @default(0)
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+
+  @@map("promotions")
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  restaurantId String?
+  menuItemId String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id])
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
+  menuItem   MenuItem?   @relation(fields: [menuItemId], references: [id])
+
+  @@unique([userId, menuItemId])
+  @@unique([userId, restaurantId])
+  @@map("favorites")
+}
+
+model DeliveryPerson {
+  id             String         @id @default(cuid())
+  userId         String         @unique
+  status         DeliveryStatus @default(AVAILABLE)
+  isOnline       Boolean        @default(false)
+  vehicleType    String?
+  vehicleNumber  String?
+  rating         Float          @default(4.8)
+  completedOrders Int           @default(0)
+  totalEarnings  Float          @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user        User                 @relation(fields: [userId], references: [id])
+  assignments DeliveryAssignment[]
+
+  @@map("delivery_people")
+}
+
+model DeliveryAssignment {
+  id               String         @id @default(cuid())
+  orderId          String         @unique
+  deliveryPersonId String?
+  status           DeliveryStatus @default(AVAILABLE)
+  fee              Float          @default(0)
+  acceptedAt       DateTime?
+  pickedUpAt       DateTime?
+  deliveredAt      DateTime?
+  rejectedAt       DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  order          Order           @relation(fields: [orderId], references: [id])
+  deliveryPerson DeliveryPerson? @relation(fields: [deliveryPersonId], references: [id])
+
+  @@map("delivery_assignments")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+// Enums
+enum Role {
+  CUSTOMER
+  ADMIN
+  DELIVERY_PERSON
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  ASSIGNED
+  PICKED_UP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  AVAILABLE
+  ASSIGNED
+  ACCEPTED
+  PICKED_UP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED
+}
+
+enum NotificationType {
+  ORDER_STATUS
+  PROMOTION
+  GENERAL
+}
