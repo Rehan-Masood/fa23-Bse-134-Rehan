@@ -7,6 +7,62 @@ Food Express is a food delivery project with a Next.js frontend, NestJS backend,
 - API docs: `http://localhost:3001/api/docs`
 - Database: PostgreSQL through Prisma, ready for Neon
 
+## Screenshots
+1.
+![1.](./Screenshots/1.png)
+2.
+![2.](./Screenshots/2.png)
+3.
+![3.](./Screenshots/3.png)
+4.1
+![4.1](./Screenshots/4.1.png)
+4.2
+![4.2](./Screenshots/4.2.png)
+5.
+![5.](./Screenshots/5.png)
+6.
+![6.](./Screenshots/6.png)
+7.
+![7.](./Screenshots/7.png)
+8.
+![8.](./Screenshots/8.png)
+9.
+![9.](./Screenshots/9.png)
+10.
+![10.](./Screenshots/10.png)
+11.
+![11.](./Screenshots/11.png)
+12.
+![12.](./Screenshots/12.png)
+13.
+![13.](./Screenshots/13.png)
+14.
+![14.](./Screenshots/14.png)
+15.
+![15.](./Screenshots/15.png)
+16.
+![16.](./Screenshots/16.png)
+17.
+![17.](./Screenshots/17.png)
+18.
+![18.](./Screenshots/18.png)
+19.
+![19.](./Screenshots/19.png)
+20.
+![20.](./Screenshots/20.png)
+21.
+![21.](./Screenshots/21.png)
+22.
+![22.](./Screenshots/22.png)
+23.
+![23.](./Screenshots/23.png)
+24.
+![24.](./Screenshots/24.png)
+25.
+![26.](./Screenshots/26.png)
+27.
+![27.](./Screenshots/27.png)
+
 ## Project Structure
 
 ```text
