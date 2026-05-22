@@ -7,6 +7,8 @@ Food Express is a food delivery project with a Next.js frontend, NestJS backend,
 - API docs: `http://localhost:3001/api/docs`
 - Database: PostgreSQL through Prisma, ready for Neon
 
+| 04  | [Food Express](./Food%20Express)   | [Live Demo](https://web-technologies-o4aw.vercel.app) |
+
 ## Screenshots
 1.
 ![1.](./Screenshots/1.png)
